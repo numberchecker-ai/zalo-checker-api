@@ -18,8 +18,8 @@ The **Zalo Number Checker API** accepts a text file of phone numbers, creates an
 | Product code | `zalo` |
 | Input | Text file, one phone per line |
 | Processing mode | Asynchronous bulk task |
-| Minimum batch | 500 identifiers |
-| Maximum batch | 10,000,000 identifiers |
+| Minimum upload | 1 identifiers |
+| Maximum upload | 10,000,000 identifiers |
 | Export fields | `number`, `activated` |
 
 
@@ -46,7 +46,7 @@ Provide one phone number per line in international E.164 format, including the c
 
 ## Errors and safe integration
 
-Typical responses include `400` invalid input, `401` invalid API key, `402` insufficient balance, `404` unknown task, `413` oversized upload, and `500` temporary server error. Retry transient `500` responses with capped backoff; correct the input or credentials before retrying other errors. Read keys from `NUMBERCHECKER_API_KEY` and never expose them in browser code or source control. Process only identifiers you are authorized to verify.
+Typical responses include `400` invalid input, `401` invalid API key, `402` insufficient balance, `404` unknown task, `413` oversized upload, and `500` temporary server error. Retry idempotent status reads with capped backoff. Do not automatically resubmit task creation after a timeout or server error: the original task may already exist. Correct invalid input or credentials before retrying. Read keys from `NUMBERCHECKER_API_KEY` and never expose them in browser code or source control. Process only identifiers you are authorized to verify.
 
 ## Runnable examples
 
@@ -87,4 +87,13 @@ See the [NumberChecker pricing page](https://numberchecker.ai/pricing). This rep
 
 NumberChecker is not affiliated with the third-party service named by this product family. Use this API only for authorized processing and comply with applicable privacy laws and platform terms.
 
-*Last reviewed: 2026-08-18 · Maintained by NumberChecker.*
+*Last reviewed: 2026-10-30 · Maintained by NumberChecker.*
+
+
+## Upload and billing limits verified 2026-10-30
+
+| Task type | Minimum upload | Maximum upload | Minimum billable quantity |
+| --- | ---: | ---: | ---: |
+| `zalo` | 1 | 10,000,000 | 500 |
+
+Upload minimum and minimum billable quantity are different. A smaller accepted upload can still be billed at the stated minimum. Zero means no billing floor. A wholly failed/unprocessed task is not charged a fabricated minimum. Check current account pricing before submitting.
